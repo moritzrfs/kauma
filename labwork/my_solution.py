@@ -5,7 +5,7 @@
 import sys
 import json
 import requests
-from labwork.labwork01 import *
+from labwork01 import *
 
 
 if len(sys.argv) != 4:
