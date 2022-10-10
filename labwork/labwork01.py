@@ -20,10 +20,10 @@ def handle_caesar(assignment):
     result = ''
     for c in text:
         if c in string.ascii_lowercase:
-            pos = string.ascii_lowercase.index(c) + shift % 26
+            pos = (string.ascii_lowercase.index(c) + shift) % 26
             result += string.ascii_lowercase[pos]
         elif c in string.ascii_uppercase:
-            pos = string.ascii_uppercase.index(c) + shift % 26
+            pos = (string.ascii_uppercase.index(c) + shift) % 26
             result += string.ascii_uppercase[pos]
         else:
             result += c
