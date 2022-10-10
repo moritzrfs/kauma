@@ -16,22 +16,15 @@ def handle_caesar(assignment):
         text = assignment['plaintext']
     elif action == 'decrypt':
         text = assignment['ciphertext']
-        shift *= -1
-    
-    lowercase_letters = string.ascii_lowercase
-    uppercase_letters = string.ascii_uppercase
+        shift *= -1    
     result = ''
     for c in text:
-        if c in lowercase_letters:
-            pos = lowercase_letters.index(c)
-            pos += shift
-            pos = pos % 26
-            result += lowercase_letters[pos]
-        elif c in uppercase_letters:
-            pos = uppercase_letters.index(c)
-            pos += shift
-            pos = pos % 26
-            result += uppercase_letters[pos]
+        if c in string.ascii_lowercase:
+            pos = string.ascii_lowercase.index(c) + shift % 26
+            result += string.ascii_lowercase[pos]
+        elif c in string.ascii_uppercase:
+            pos = string.ascii_uppercase.index(c) + shift % 26
+            result += string.ascii_uppercase[pos]
         else:
             result += c
     return result
