@@ -28,6 +28,7 @@ assignment = result.json()
 known_assignment_count = 0
 unknown_assignment_count = 0
 pass_count = 0
+start = time.time()
 for testcase in assignment["testcases"]:
 	if testcase["type"] == "strcat":
 		known_assignment_count += 1
@@ -40,7 +41,7 @@ for testcase in assignment["testcases"]:
 		response = handle_caesar(testcase["assignment"])
 	elif testcase["type"] == "password_keyspace":
 		known_assignment_count += 1
-		response = handle_password_keyspace(testcase["assignment"])
+		response = handle_password_keyspace2(testcase["assignment"])
 	else:
 		unknown_assignment_count += 1
 		print("Do not know how to handle type: %s" % (testcase["type"]))
@@ -56,5 +57,7 @@ for testcase in assignment["testcases"]:
 		pass_count += 1
 	else:
 		print(submission_result)
+end = time.time()
+print("Total exec time: ", end - start)
 print("%d known assignments, %d unknown." % (known_assignment_count, unknown_assignment_count))
 print("Passed: %d. Failed: %d" % (pass_count, known_assignment_count - pass_count))
