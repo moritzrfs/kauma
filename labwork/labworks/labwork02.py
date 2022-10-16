@@ -162,3 +162,62 @@ def handle_mul_gf2_128(assignment):
         shifted = decode_to_int(block) << 1
     times_alpha = encode_from_int(shifted)
     return {"block_times_alpha" : times_alpha}
+
+def handle_block_cipher(assignment):
+    key = assignment['key']
+    if assignment['operation'] == 'encrypt':
+        text = assignment['plaintext']
+    else:
+        text = assignment['ciphertext']
+    if assignment['opmode'] == 'cbc':
+        decoded_text = decode_to_int(text)
+        decoded_iv = decode_to_int(assignment['iv'])
+
+        text_xor_iv = decoded_text ^ decoded_iv
+
+        # cbc
+        return 0
+    elif assignment['opmode'] == 'ctr':
+        # ctr
+        return 0
+    else:
+        # xex
+        return 0
+
+test_123= "VGhpcyBpcyB0aGUgcGxhaW50ZXh0IGV4YW1wbGUgdGhhdCB5b3Ugc2hvdWxkIGVuY3J5cHQgdXNpbmcgQ0JDIHdpdGhvdXQgcGFkZGluZy4="
+str_1 = "Join our freelance network"
+
+# convert string into bytes
+str_1_bytes = str_1.encode()
+
+# split bytes into array of bytes
+str_1_bytes_array = bytearray(str_1_bytes)
+# print(len(str_1_bytes_array))
+
+# encode test_123 into bytes
+test_123_bytes = base64.b64decode(test_123)
+
+# split bytes into array of bytes
+test_123_bytes_array = bytearray(test_123_bytes)
+# print(len(test_123_bytes_array))
+
+# split test_123_bytes_array by 16 bytes
+test_123_bytes_array_16 = [test_123_bytes_array[i:i+16] for i in range(0, len(test_123_bytes_array), 16)]
+# print(len(test_123_bytes_array_16))
+
+# first element in test_123_bytes_array_16 is the iv
+iv = test_123_bytes_array_16[0]
+# print(iv)
+
+# convert iv to int
+iv_int = int.from_bytes(iv, byteorder='little')
+# print(iv_int)
+
+ihfau = "DlBD+b7U4Cw4usdbjG7tjA=="
+ihfau_int = decode_to_int(ihfau)
+# print(ihfau_int)
+
+# xor iv and ihfau
+
+xor_iv_ihfau = iv_int ^ ihfau_int
+# print(xor_iv_ihfau)
