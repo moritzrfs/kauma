@@ -1,8 +1,12 @@
 import base64
 import binascii
 import itertools
+import json
 import re
 import sys
+from tokenize import String
+
+import requests
 
 assignments = {
     "testcases": [
@@ -163,20 +167,40 @@ def handle_mul_gf2_128(assignment):
     times_alpha = encode_from_int(shifted)
     return {"block_times_alpha" : times_alpha}
 
+
 def handle_block_cipher(assignment):
-    key = assignment['key']
-    if assignment['operation'] == 'encrypt':
-        text = assignment['plaintext']
-    else:
-        text = assignment['ciphertext']
+    print(assignment['opmode'])
     if assignment['opmode'] == 'cbc':
-        decoded_text = decode_to_int(text)
-        decoded_iv = decode_to_int(assignment['iv'])
-
-        text_xor_iv = decoded_text ^ decoded_iv
-
-        # cbc
-        return 0
+        text_result = b''
+        session = requests.Session()
+        if assignment['operation'] == 'encrypt':
+            print("Handling encyption")
+            print("Using key: " + assignment['key'])
+            iv_16b = base64.b64decode(assignment['iv']) # base64 decode iv  
+            for i in range(0, len(base64.b64decode(assignment['plaintext'])), 16):
+                plaintext_16b = base64.b64decode(assignment['plaintext'])[i:i+16]                    
+                xor_result = handle_xor(plaintext_16b, iv_16b) # xor plaintext_byte with iv_bytes
+                xor_result = base64.b64encode(xor_result).decode('utf-8') # base64 encode xor_result
+                ciphertext = json.loads(query_oracle(session, xor_result, assignment['operation'], assignment['key']))["ciphertext"]
+                iv_16b = base64.b64decode(ciphertext)
+                text_result += base64.b64decode(ciphertext)
+            print({"ciphertext": base64.b64encode(text_result).decode('utf-8')})
+            return {"ciphertext": base64.b64encode(text_result).decode('utf-8')}
+        elif assignment['operation'] == 'decrypt':
+            print("Handling decryption")
+            print("Using key: " + assignment['key'])
+            plaintext_oracle = json.loads(query_oracle(session, assignment['ciphertext'], assignment['operation'], assignment['key']))["plaintext"]
+            iv_16b = base64.b64decode(assignment['iv']) # base64 decode iv  
+            for i in range(0, len(base64.b64decode(plaintext_oracle)), 16):
+                ciphertext_16b = base64.b64decode(plaintext_oracle)[i:i+16]    
+                cipher_pre = base64.b64decode(assignment['ciphertext'])[i:i+16]
+                xor_result = handle_xor(ciphertext_16b, iv_16b)
+                xor_result = base64.b64encode(xor_result).decode('utf-8')                
+                iv_16b = cipher_pre
+                text_result += base64.b64decode(xor_result)
+            print({"ciphertext": base64.b64encode(text_result).decode('utf-8')})
+            return {"plaintext" : base64.b64encode(text_result).decode('utf-8')}
+            
     elif assignment['opmode'] == 'ctr':
         # ctr
         return 0
@@ -184,40 +208,20 @@ def handle_block_cipher(assignment):
         # xex
         return 0
 
-test_123= "VGhpcyBpcyB0aGUgcGxhaW50ZXh0IGV4YW1wbGUgdGhhdCB5b3Ugc2hvdWxkIGVuY3J5cHQgdXNpbmcgQ0JDIHdpdGhvdXQgcGFkZGluZy4="
-str_1 = "Join our freelance network"
+def handle_xor(a: bytes, b: bytes) -> bytes:
+    return bytes([x ^ y for x, y in zip(a, b)])
 
-# convert string into bytes
-str_1_bytes = str_1.encode()
+def handle_cbc(assignment):
+    print("Handling Testcase with iv: ", assignment['iv'])
+    print("Handling Testcase with operation: ", assignment['operation'])    
 
-# split bytes into array of bytes
-str_1_bytes_array = bytearray(str_1_bytes)
-# print(len(str_1_bytes_array))
-
-# encode test_123 into bytes
-test_123_bytes = base64.b64decode(test_123)
-
-# split bytes into array of bytes
-test_123_bytes_array = bytearray(test_123_bytes)
-# print(len(test_123_bytes_array))
-
-# split test_123_bytes_array by 16 bytes
-test_123_bytes_array_16 = [test_123_bytes_array[i:i+16] for i in range(0, len(test_123_bytes_array), 16)]
-# print(len(test_123_bytes_array_16))
-
-# first element in test_123_bytes_array_16 is the iv
-iv = test_123_bytes_array_16[0]
-# print(iv)
-
-# convert iv to int
-iv_int = int.from_bytes(iv, byteorder='little')
-# print(iv_int)
-
-ihfau = "DlBD+b7U4Cw4usdbjG7tjA=="
-ihfau_int = decode_to_int(ihfau)
-# print(ihfau_int)
-
-# xor iv and ihfau
-
-xor_iv_ihfau = iv_int ^ ihfau_int
-# print(xor_iv_ihfau)
+def query_oracle(session, text, operation, key):
+    # put request to server
+    if operation == 'encrypt':
+        payload = {"operation" : operation, "key" : key, "plaintext" : text}
+    elif operation == 'decrypt':
+        payload = {"operation" : operation, "key" : key, "ciphertext" : text}
+    result = session.post("https://dhbw.johannes-bauer.com/lwsub/oracle/block_cipher", headers = {
+        "Content-Type": "application/json"}, data = json.dumps(payload))
+    assert(result.status_code == 200)
+    return result.text
