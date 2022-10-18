@@ -8,6 +8,7 @@ import requests
 
 from labworks.labwork01 import *
 from labworks.labwork02 import *
+from labworks.labwork03 import *
 
 if len(sys.argv) != 4:
 	print("syntax: %s [API endpoint URI] [client ID] [assignment_name]" % (sys.argv[0]))
