@@ -1,6 +1,11 @@
 import base64
 import requests
 import json
+import sys
+# import api_endpoint from main.py
+
+api_endpoint = sys.argv[1]
+
 session1 = requests.Session()
 test_assignment =  {
         "ciphertext": "QBqQNIrwOnHATspnawRJUQ==",
@@ -13,7 +18,7 @@ test_assignment =  {
 
 def query_oracle_padding(_session : requests.Session, keyname: str, iv: str, ciphertext: str):
     payload = { "keyname": keyname, "iv": iv, "ciphertext": ciphertext }
-    result = _session.post("https://dhbw.johannes-bauer.com/lwsub/oracle/pkcs7_padding", headers = {
+    result = _session.post(api_endpoint + "/oracle/pkcs7_padding", headers = {
         "Content-Type": "application/json"}, data = json.dumps(payload))
     assert(result.status_code == 200)
     return result.text
@@ -32,6 +37,7 @@ def handle_pkcs7_padding(assignment):
     
     plain = decrypt_cbc(xor_result, iv)
     plain_b64 = base64.b64encode(plain).decode("utf8")
+    print("plaintext: ", plain_b64)
     return {"plaintext": plain_b64 }
     
 def search_correct_padding(test_iv, ciphertext, key, round):
@@ -86,3 +92,5 @@ def decrypt_cbc(xor_result: bytearray, iv: bytearray):
          plaintext = plaintext[:-last_byte] # remove last x bytes from plaintext
 
     return plaintext
+
+handle_pkcs7_padding(test_assignment)
