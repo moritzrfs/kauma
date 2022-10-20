@@ -39,15 +39,18 @@ for testcase in assignment["testcases"]:
 	elif testcase["type"] == "caesar_cipher":
 		known_assignment_count += 1
 		response = handle_caesar(testcase["assignment"])
-	elif testcase["type"] == "password_keyspace":
-		known_assignment_count += 1
-		response = handle_password_keyspace(testcase["assignment"])
+	# elif testcase["type"] == "password_keyspace":
+	# 	known_assignment_count += 1
+	# 	response = handle_password_keyspace(testcase["assignment"])
 	elif testcase["type"] == "mul_gf2_128":
 		known_assignment_count +=1
 		response = handle_mul_gf2_128(testcase["assignment"])
 	elif testcase["type"] == "block_cipher":
 		known_assignment_count +=1
 		response = handle_block_cipher(testcase["assignment"])
+	elif testcase["type"] == "pkcs7_padding":
+		known_assignment_count +=1
+		response = handle_pkcs7_padding(testcase["assignment"])
 	else:
 		unknown_assignment_count += 1
 		print("Do not know how to handle type: %s" % (testcase["type"]))
