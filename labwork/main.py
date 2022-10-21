@@ -39,9 +39,9 @@ for testcase in assignment["testcases"]:
 	elif testcase["type"] == "caesar_cipher":
 		known_assignment_count += 1
 		response = handle_caesar(testcase["assignment"])
-	# elif testcase["type"] == "password_keyspace":
-	# 	known_assignment_count += 1
-	# 	response = handle_password_keyspace(testcase["assignment"])
+	elif testcase["type"] == "password_keyspace":
+		known_assignment_count += 1
+		response = handle_password_keyspace(testcase["assignment"])
 	elif testcase["type"] == "mul_gf2_128":
 		known_assignment_count +=1
 		response = handle_mul_gf2_128(testcase["assignment"])
