@@ -5,6 +5,8 @@
 import sys
 import json
 import requests
+import time
+from labworks.labwork04 import *
 
 from labworks.labwork01 import *
 from labworks.labwork02 import *
@@ -29,6 +31,7 @@ assignment = result.json()
 known_assignment_count = 0
 unknown_assignment_count = 0
 pass_count = 0
+start = time.time()
 for testcase in assignment["testcases"]:
 	if testcase["type"] == "strcat":
 		known_assignment_count += 1
@@ -50,7 +53,11 @@ for testcase in assignment["testcases"]:
 		response = handle_block_cipher(testcase["assignment"])
 	elif testcase["type"] == "pkcs7_padding":
 		known_assignment_count +=1
+		print(testcase["tcid"])
 		response = handle_pkcs7_padding(testcase["assignment"])
+	elif testcase["type"] == "cbc_key_equals_iv":
+		known_assignment_count +=1
+		response = handle_cbc_key_equals_iv(testcase["assignment"])
 	else:
 		unknown_assignment_count += 1
 		print("Do not know how to handle type: %s" % (testcase["type"]))
@@ -66,5 +73,7 @@ for testcase in assignment["testcases"]:
 		pass_count += 1
 	else:
 		print(submission_result)
+end = time.time()
+print("Total time passed: %f seconds" % (end - start))
 print("%d known assignments, %d unknown." % (known_assignment_count, unknown_assignment_count))
 print("Passed: %d. Failed: %d" % (pass_count, known_assignment_count - pass_count))
