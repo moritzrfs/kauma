@@ -5,7 +5,6 @@
 import sys
 import json
 import requests
-import time
 from labworks.labwork04 import *
 
 from labworks.labwork01 import *
@@ -31,7 +30,6 @@ assignment = result.json()
 known_assignment_count = 0
 unknown_assignment_count = 0
 pass_count = 0
-start = time.time()
 for testcase in assignment["testcases"]:
 	if testcase["type"] == "strcat":
 		known_assignment_count += 1
@@ -62,7 +60,6 @@ for testcase in assignment["testcases"]:
 		known_assignment_count +=1
 		response = handle_gcm_block_to_poly(testcase["assignment"])
 	elif testcase["type"] == "gcm_mul_gf2_128":
-		print(testcase["tcid"])
 		known_assignment_count +=1
 		response = handle_gcm_mul_gf2_128(testcase["assignment"])
 	else:
@@ -80,7 +77,5 @@ for testcase in assignment["testcases"]:
 		pass_count += 1
 	else:
 		print(submission_result)
-end = time.time()
-print("Total time passed: %f seconds" % (end - start))
 print("%d known assignments, %d unknown." % (known_assignment_count, unknown_assignment_count))
 print("Passed: %d. Failed: %d" % (pass_count, known_assignment_count - pass_count))
