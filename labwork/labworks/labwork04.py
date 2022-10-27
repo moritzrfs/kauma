@@ -41,11 +41,11 @@ def handle_gcm_mul_gf2_128(assignment):
     polys = []
     for i in range(len(poly_a['coefficients'])):
         for j in range(len(poly_b['coefficients'])):
-            to_add = poly_a['coefficients'][i] + poly_b['coefficients'][j]
+            to_add = poly_a['coefficients'][i] + poly_b['coefficients'][j] # multiplication
             poly_append(polys, to_add)
     polys.sort(reverse=True)
 
-    while polys[0] > 127:
+    while polys[0] > 127: # reduction of irreducible polynomial
         highest = polys[0]        
         polys.remove(polys[0])
         poly_append(polys, highest - 128)
