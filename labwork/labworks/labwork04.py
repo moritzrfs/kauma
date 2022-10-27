@@ -3,19 +3,7 @@ import json
 import sys
 import requests
 
-# api_endpoint = sys.argv[1]
-
-test_assignment = {
-        "a": "/wAAAAAAAAAAAAAAAAAAAA==",
-        "b": "gAAAAAAAAAAAAAAAAAAAAA=="
-      }
-
-def query_oracle(session: requests.Session, keyname: str, ciphertext: str) -> str:
-    payload = { "keyname": keyname, "ciphertext": ciphertext }
-    result = session.post(api_endpoint + "/oracle/cbc_key_equals_iv", headers = {
-        "Content-Type": "application/json"}, data = json.dumps(payload))
-    assert(result.status_code == 200)
-    return result.json()['plaintext']
+api_endpoint = sys.argv[1]
 
 def handle_cbc_key_equals_iv(assignment):
     session = requests.session()
@@ -43,15 +31,20 @@ def handle_gcm_mul_gf2_128(assignment):
     poly_a = handle_gcm_block_to_poly({ 'block' : assignment['a'] })
     poly_b = handle_gcm_block_to_poly({ 'block' : assignment['b'] })
 
+    # handle case where  either a or b or both  are 0 at this positions
+    # since no polynoms are returned to be handled by the multiplication followed
+    if len(poly_b['coefficients']) == 0: 
+        return { "a*b": assignment['a'] }
+    elif len(poly_a['coefficients']) == 0: # handle case where a is 0
+        return { "a*b": assignment['b'] }
+
     polys = []
     for i in range(len(poly_a['coefficients'])):
-        print(poly_a['coefficients'][i])
         for j in range(len(poly_b['coefficients'])):
             to_add = poly_a['coefficients'][i] + poly_b['coefficients'][j]
-            # if to_add is in polys remove it
             poly_append(polys, to_add)
-
     polys.sort(reverse=True)
+
     while polys[0] > 127:
         highest = polys[0]        
         polys.remove(polys[0])
@@ -59,12 +52,25 @@ def handle_gcm_mul_gf2_128(assignment):
         poly_append(polys, highest - 127)
         poly_append(polys, highest - 126)
         poly_append(polys, highest - 121)
-        # sort descending
-        polys.sort(reverse=True)
+        polys.sort(reverse=True)# sort descending    
+    result = 0
 
-    end_result = bytearray(16)
-    end_result[0] =  0b10000000
-    print(end_result)
+    for i in range(len(polys)):
+        result += 2 ** polys[i]
+    result_bytes = bytearray(result.to_bytes(16, byteorder='little'))
+
+    for i in range(16):
+        result_bytes[i] = reverse_Bits(result_bytes[i])
+    result_b64 = base64.b64encode(result_bytes).decode('utf-8')
+
+    return { "a*b": result_b64 }
+
+def query_oracle(session: requests.Session, keyname: str, ciphertext: str) -> str:
+    payload = { "keyname": keyname, "ciphertext": ciphertext }
+    result = session.post(api_endpoint + "/oracle/cbc_key_equals_iv", headers = {
+        "Content-Type": "application/json"}, data = json.dumps(payload))
+    assert(result.status_code == 200)
+    return result.json()['plaintext']
 
 def poly_append(polys: list, to_add: int):
     if to_add in polys:
@@ -73,4 +79,10 @@ def poly_append(polys: list, to_add: int):
         polys.append(to_add)
     polys.sort(reverse=True)
 
-handle_gcm_mul_gf2_128(test_assignment)
+def reverse_Bits(block: int) -> int:
+    result = 0
+    for i in range(8):
+        result <<= 1
+        result |= block & 1
+        block >>= 1
+    return result

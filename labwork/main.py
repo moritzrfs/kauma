@@ -61,6 +61,10 @@ for testcase in assignment["testcases"]:
 	elif testcase["type"] == "gcm_block_to_poly":
 		known_assignment_count +=1
 		response = handle_gcm_block_to_poly(testcase["assignment"])
+	elif testcase["type"] == "gcm_mul_gf2_128":
+		print(testcase["tcid"])
+		known_assignment_count +=1
+		response = handle_gcm_mul_gf2_128(testcase["assignment"])
 	else:
 		unknown_assignment_count += 1
 		print("Do not know how to handle type: %s" % (testcase["type"]))
