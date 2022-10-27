@@ -3,7 +3,12 @@ import json
 import sys
 import requests
 
-api_endpoint = sys.argv[1]
+# api_endpoint = sys.argv[1]
+
+test_assignment = {
+        "a": "/wAAAAAAAAAAAAAAAAAAAA==",
+        "b": "gAAAAAAAAAAAAAAAAAAAAA=="
+      }
 
 def query_oracle(session: requests.Session, keyname: str, ciphertext: str) -> str:
     payload = { "keyname": keyname, "ciphertext": ciphertext }
@@ -23,3 +28,49 @@ def handle_cbc_key_equals_iv(assignment):
     plaintext_modified_b64 = base64.b64decode(query_oracle(session, assignment['keyname'], ciphertext_modified))
     key = base64.b64encode(bytes([a ^ b for a, b in zip(plaintext_modified_b64[0:16], plaintext_modified_b64[32:48])])).decode('utf-8')
     return { "key": key }
+
+def handle_gcm_block_to_poly(assignment):
+    block = base64.b64decode(assignment['block'])
+    block_int = int.from_bytes(block, byteorder='big')
+    poly = []
+    for i in range(128):
+        if block_int & (1 << i):
+            poly.append(128-i-1)
+    poly.sort()
+    return { "coefficients": poly}
+
+def handle_gcm_mul_gf2_128(assignment):
+    poly_a = handle_gcm_block_to_poly({ 'block' : assignment['a'] })
+    poly_b = handle_gcm_block_to_poly({ 'block' : assignment['b'] })
+
+    polys = []
+    for i in range(len(poly_a['coefficients'])):
+        print(poly_a['coefficients'][i])
+        for j in range(len(poly_b['coefficients'])):
+            to_add = poly_a['coefficients'][i] + poly_b['coefficients'][j]
+            # if to_add is in polys remove it
+            poly_append(polys, to_add)
+
+    polys.sort(reverse=True)
+    while polys[0] > 127:
+        highest = polys[0]        
+        polys.remove(polys[0])
+        poly_append(polys, highest - 128)
+        poly_append(polys, highest - 127)
+        poly_append(polys, highest - 126)
+        poly_append(polys, highest - 121)
+        # sort descending
+        polys.sort(reverse=True)
+
+    end_result = bytearray(16)
+    end_result[0] =  0b10000000
+    print(end_result)
+
+def poly_append(polys: list, to_add: int):
+    if to_add in polys:
+        polys.remove(to_add)
+    else:
+        polys.append(to_add)
+    polys.sort(reverse=True)
+
+handle_gcm_mul_gf2_128(test_assignment)

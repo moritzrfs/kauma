@@ -58,6 +58,9 @@ for testcase in assignment["testcases"]:
 	elif testcase["type"] == "cbc_key_equals_iv":
 		known_assignment_count +=1
 		response = handle_cbc_key_equals_iv(testcase["assignment"])
+	elif testcase["type"] == "gcm_block_to_poly":
+		known_assignment_count +=1
+		response = handle_gcm_block_to_poly(testcase["assignment"])
 	else:
 		unknown_assignment_count += 1
 		print("Do not know how to handle type: %s" % (testcase["type"]))
