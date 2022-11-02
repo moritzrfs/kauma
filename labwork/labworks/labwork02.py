@@ -2,6 +2,7 @@ import base64
 import itertools
 import json
 import re
+import sys
 import requests
 
 res_pattern = {
@@ -133,7 +134,7 @@ def query_oracle(session, text, operation, key):
         payload = {"operation" : operation, "key" : key, "plaintext" : text}
     elif operation == 'decrypt':
         payload = {"operation" : operation, "key" : key, "ciphertext" : text}
-    result = session.post("https://dhbw.johannes-bauer.com/lwsub/oracle/block_cipher", headers = {
+    result = session.post(sys.argv[1]+"/oracle/block_cipher", headers = {
         "Content-Type": "application/json"}, data = json.dumps(payload))
     assert(result.status_code == 200)
     return result.text
