@@ -65,7 +65,7 @@ for testcase in assignment["testcases"]:
 		response = handle_gcm_mul_gf2_128(testcase["assignment"])
 	elif testcase["type"] == "rc4_fms":
 		known_assignment_count +=1
-		response = handle_rc4_fms(testcase["assignment"])
+		response = handle_rc4_fms(testcase["assignment"], testcase["tcid"])
 	else:
 		unknown_assignment_count += 1
 		print("Do not know how to handle type: %s" % (testcase["type"]))
