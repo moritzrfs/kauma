@@ -5,7 +5,6 @@ import sys
 import requests
 
 api_endpoint = sys.argv[1]
-session = requests.Session()
 
 def iv_string_handle(iv_dump) -> bytearray:
     iv_dump = base64.b64decode(iv_dump)
@@ -76,6 +75,7 @@ def invert_sbox(sbox: list) -> list:
     return inverse
 
 def handle_test_result(key, tcid):
+    session = requests.Session()
     key = base64.b64encode(key).decode('utf-8')
     result = session.post(api_endpoint + "/submission/" + tcid, headers = {
 		"Content-Type": "application/json",
