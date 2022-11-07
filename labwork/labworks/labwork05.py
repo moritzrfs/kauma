@@ -1,10 +1,9 @@
 import base64
 import json
 import sys
-import requests
+from requests import Session
 
 api_endpoint = sys.argv[1]
-session = requests.Session()
 
 def iv_string_handle(iv_dump) -> bytearray:
     iv_dump = base64.b64decode(iv_dump)
@@ -79,9 +78,10 @@ def invert_sbox(sbox: list[int]) -> list[int]:
 
 def handle_test_result(key, tcid):
     key = base64.b64encode(key).decode('utf-8')
-    result = session.post(api_endpoint + "/submission/" + tcid, headers = {
-		"Content-Type": "application/json",
-	}, data = json.dumps({"key" : key}))
+    with Session() as s:
+        result = s.post(api_endpoint + "/submission/" + tcid, headers = {
+            "Content-Type": "application/json",
+        }, data = json.dumps({"key" : key}))
     if result.json()["status"] == "pass":
         return True
     else:
@@ -93,29 +93,4 @@ def occurence_tree(arr, round):
         arr[0] = 0
     else:
         arr[0] += 1
-    # print("Occurence tree:", arr, "Round:", round)
     return arr
-
-def bonus():
-    ksa = []
-    sbox = [i for i in range(256)]
-
-    pseudoj = 0
-    for i in range(256):
-        new = 256 - pseudoj 
-        ksa.append(new)
-        pseudoj = (pseudoj + sbox[i] + ksa[i]) % 256
-        
-    j = 0
-    for i in range(256):
-        print("j: ",j)
-        print("sbox[i]: ",sbox[i])
-        print("ksa[i]: ",ksa[i])
-        j = (j + sbox[i] + ksa[i]) % 256
-        print("Ergebnis: ",j,i)
-        print()
-        sbox[i], sbox[j] = sbox[j], sbox[i]
-    print(ksa)
-    print(sbox)
-
-bonus()
