@@ -5,6 +5,7 @@
 import sys
 import json
 import requests
+from labworks.labwork06 import handle_chi_square
 from labworks.labwork05 import *
 from labworks.labwork04 import *
 
@@ -66,6 +67,9 @@ for testcase in assignment["testcases"]:
 	elif testcase["type"] == "rc4_fms":
 		known_assignment_count +=1
 		response = handle_rc4_fms(testcase["assignment"], testcase["tcid"])
+	elif testcase["type"] == "chi_square":
+		known_assignment_count +=1
+		response = handle_chi_square(testcase["assignment"])
 	else:
 		unknown_assignment_count += 1
 		print("Do not know how to handle type: %s" % (testcase["type"]))
