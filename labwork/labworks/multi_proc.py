@@ -1,36 +1,27 @@
-from multiprocessing.pool import ThreadPool as Pool
-from multiprocessing import Pool
-import timeit
-pool_size = 7  # your "parallelness"
-def worker(item):
-    try:
-        for i in range(100000000):
-            i+item
-    except:
-        print('error with item')
 
-pool = Pool(pool_size)
-
-items = [1,2,3,4,5,6,7]
-
-start = timeit.default_timer()
-
-for item in items:
-    pool.apply_async(worker, (item,))
-pool.close()
-pool.join()
-# time end
-stop = timeit.default_timer()
-
-print('Time: ', stop - start)
-
-# time start
-start = timeit.default_timer()
-
-for item in items:
-    for i in range(100000000):
-        i+item
-# time end
-stop = timeit.default_timer()
-
-print('Time: ', stop - start)
+# SuperFastPython.com
+# execute tasks in parallel in a for loop
+from time import sleep
+from random import random
+from multiprocessing import Process
+ 
+# execute a task
+def task(arg):
+    # generate a random value between 0 and 1
+    value = random()
+    # block for a fraction of a second
+    sleep(value)
+    # report a message
+    print(f'.done {arg}, generated {value}', flush=True)
+# protect the entry point
+if __name__ == '__main__':
+    # create all tasks
+    processes = [Process(target=task, args=(i,)) for i in range(20)]
+    # start all processes
+    for process in processes:
+        process.start()
+    # wait for all processes to complete
+    for process in processes:
+        process.join()
+    # report that all tasks are completed
+    print('Done', flush=True)

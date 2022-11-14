@@ -15,7 +15,7 @@ jobs:
     uses: arne-kapell/kauma-pipeline/.github/workflows/pipeline.yml@main
     with:
       TEST_SERVER: 'https://dhbw.johannes-bauer.com/lwsub/' # optional (default: https://dhbw.johannes-bauer.com/lwsub/)
-      DEFAULT_ASSIGNMENT: 'labwork01' # optional (default: labwork01)
+      # DEFAULT_ASSIGNMENT: 'labwork01' # optional (default: labwork01)
       CONTAINER_TIMEOUT: 180
     secrets:
       CLIENT_ID: ${{ secrets.CLIENT_ID }} # required (can be set in your repository settings)
