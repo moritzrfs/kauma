@@ -1,5 +1,6 @@
 import base64
 
+
 def handle_chi_square(assignment):
     data = base64.b64decode(assignment['data'])
     selectors = assignment['selectors']
