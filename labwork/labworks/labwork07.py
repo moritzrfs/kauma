@@ -33,7 +33,6 @@ def crack_char(user, alphabet, password, session):
             char_stats.append((char, time))
         char_stats.sort(key=lambda x: x[1], reverse=True)
         total_stats.append(char_stats[0][0])
-    print("cracked char: " + max(set(total_stats), key=total_stats.count))
     return(max(set(total_stats), key=total_stats.count)), status
 
 def query_oracle(session: requests.Session, user: str, password: str) -> str:
