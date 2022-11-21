@@ -3,7 +3,6 @@ import base64
 import hashlib
 from math import gcd
 
-
 assignment_test = {
         "msg": "TmV2ZXIgZ29ubmEgZ2l2ZSB5b3UgdXAsIG5ldmVyIGdvbm5hIGxldCB5b3UgZG93biwgbmV2ZXIgZ29ubmEgcnVuIGFyb3VuZCBhbmQgZGVzZXJ0IHlvdSA4NTc3MDY5MzgyOTcwMzMwNDky",
         "pubkey": {
@@ -17,44 +16,45 @@ assignment_test = {
       }
 
 def handle_rsa_crt_fault_injection(assignment):
-
     msg = b64_to_int(assignment['msg'])
-    #print(msg)
     e = b64_to_int(assignment['pubkey']['e'])
-    print(e)
-    print("+++")
     n = b64_to_int(assignment['pubkey']['n'])
-    s1 = b64_to_int(assignment['sigs'][0])
-    print(s1)
-    s2 = b64_to_int(assignment['sigs'][1])
-'''
-    p = factor_n(s1, e, m69, n)
-    print(p)
-    p = factor_n(s2, e, m69, n)
-    print(p)'''
+    s_1 = b64_to_int(assignment['sigs'][0])
+    s_2 = b64_to_int(assignment['sigs'][1])
 
-
+    c_s_1 = (get_signature(s_1, e, n))
+    c_s_2 = (get_signature(s_2, e, n))
+    print(int_to_bytes(c_s_1))
+    print(int_to_bytes(c_s_2))
 
 def b64_to_int(b64):
     '''
     Convert a base64 encoded string to an integer
-    with big endian byte order
+    with big endian byte order (most significant byte first)
+    with length of 100 bytes
     '''
     return int.from_bytes(base64.b64decode(b64), byteorder='big')
-
 
 def factor_n(s1, e, m1, N):
     p = gcd(s1^e - m1, N)
     return p
 
+def check_signature(msg, sig, e, n):
+    print(((sig^e) % n ))
+    print((msg % n))
+    return ((sig^e) % n ) == (msg % n)
 
-def md5(msg):
+def get_signature(s, e, n):
+    return (s^e) % n
+
+def int_to_bytes(i):
     '''
-    Return the md5 hash of a message.
+    Convert an integer to a byte string with big endian byte order
+    (most significant byte first) with leading zeros
+
     '''
-    m = hashlib.md5()
-    m.update(msg.encode('utf-8'))
-    return int(m.hexdigest(), 16)
+    return i.to_bytes(100, byteorder='big')
 
 
 handle_rsa_crt_fault_injection(assignment_test)
+
