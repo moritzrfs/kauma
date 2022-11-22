@@ -5,6 +5,7 @@
 import sys
 import json
 import requests
+from labworks.labwork08 import handle_rsa_crt_fault_injection
 from labworks.labwork07 import handle_timing_sidechannel
 from labworks.labwork06 import handle_chi_square
 from labworks.labwork05 import *
@@ -74,6 +75,10 @@ for testcase in assignment["testcases"]:
 	elif testcase["type"] == "timing_sidechannel":
 		known_assignment_count +=1
 		response = handle_timing_sidechannel(testcase["assignment"])
+	elif testcase["type"] == "rsa_crt_fault_injection":
+		known_assignment_count +=1
+		response = handle_rsa_crt_fault_injection(testcase["assignment"])
+
 	else:
 		unknown_assignment_count += 1
 		print("Do not know how to handle type: %s" % (testcase["type"]))
