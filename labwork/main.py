@@ -14,6 +14,7 @@ from labworks.labwork04 import *
 from labworks.labwork01 import *
 from labworks.labwork02 import *
 from labworks.labwork03 import *
+from labworks.labwork09 import handle_glasskey
 
 if len(sys.argv) != 4:
 	print("syntax: %s [API endpoint URI] [client ID] [assignment_name]" % (sys.argv[0]))
@@ -78,7 +79,9 @@ for testcase in assignment["testcases"]:
 	elif testcase["type"] == "rsa_crt_fault_injection":
 		known_assignment_count +=1
 		response = handle_rsa_crt_fault_injection(testcase["assignment"])
-
+	elif testcase["type"] == "glasskey":
+		known_assignment_count +=1
+		response = handle_glasskey(testcase["assignment"])
 	else:
 		unknown_assignment_count += 1
 		print("Do not know how to handle type: %s" % (testcase["type"]))
