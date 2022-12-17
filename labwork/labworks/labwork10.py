@@ -9,7 +9,7 @@ n = 0xFFFFFFFF00000000FFFFFFFFFFFFFFFE8F4E0793DE3B9C2E0F61060A88B13657
 h = 1
 
 
-def scalar_mult(k, P):
+def scalar_multiplication(k, P):
     """
     Scalar multiplication of a point P by a scalar k
     """
@@ -71,32 +71,32 @@ def truncate(r, bits):
     return r & ((1 << bits) - 1)
 
 
-def get_next(backdoorkey, drgb_output, outbits, P, Q):
+def guess_next(backdoorkey, drgb_output, outbits, P, Q):
     """
     Get the next number from the given output of the DRBG
     """
     inverse = inverse_mod(backdoorkey, n)
     for bits in range(0x10000):
-        bits <<= 248
+        bits <<= outbits
         possible_x = bits | drgb_output[0]
         possible_point = (
             possible_x,
             pow(possible_x**3 + a * possible_x + b, (p + 1) // 4, p),
         )
-        possible_t = scalar_mult(inverse, possible_point)[0]
-        r = truncate(scalar_mult(possible_t, Q)[0], outbits)
+        possible_t = scalar_multiplication(inverse, possible_point)[0]
+        r = truncate(scalar_multiplication(possible_t, Q)[0], outbits)
 
         if r == drgb_output[1]:
             found = True
             for do in drgb_output[2:]:
-                possible_t = scalar_mult(possible_t, P)[0]
-                r = truncate(scalar_mult(possible_t, Q)[0], outbits)
+                possible_t = scalar_multiplication(possible_t, P)[0]
+                r = truncate(scalar_multiplication(possible_t, Q)[0], outbits)
                 if r != do:
                     found = False
 
             if found:
-                t = scalar_mult(possible_t, P)[0]
-                r = truncate(scalar_mult(t, Q)[0], outbits)
+                t = scalar_multiplication(possible_t, P)[0]
+                r = truncate(scalar_multiplication(t, Q)[0], outbits)
                 return r
 
 
@@ -125,7 +125,7 @@ def handle_dual_ec_dbrg(assignment):
     ]
     blocks_int = [int.from_bytes(block, byteorder="big") for block in blocks_bytes]
 
-    next_int = get_next(backdoorkey_int, blocks_int, outbits_int, P, Q)
+    next_int = guess_next(backdoorkey_int, blocks_int, outbits_int, P, Q)
     next_bytes = next_int.to_bytes((next_int.bit_length() + 7) // 8, "big")
     next_b64 = base64.b64encode(next_bytes).decode("utf-8")
 
