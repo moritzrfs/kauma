@@ -5,6 +5,7 @@
 import sys
 import json
 import requests
+from labworks.labwork10 import handle_dual_ec_dbrg
 from labworks.labwork08 import handle_rsa_crt_fault_injection
 from labworks.labwork07 import handle_timing_sidechannel
 from labworks.labwork06 import handle_chi_square
@@ -82,6 +83,9 @@ for testcase in assignment["testcases"]:
 	elif testcase["type"] == "glasskey":
 		known_assignment_count +=1
 		response = handle_glasskey(testcase["assignment"])
+	elif testcase["type"] == "dual_ec_dbrg":
+		known_assignment_count +=1
+		response = handle_dual_ec_dbrg(testcase["assignment"])
 	else:
 		unknown_assignment_count += 1
 		print("Do not know how to handle type: %s" % (testcase["type"]))
