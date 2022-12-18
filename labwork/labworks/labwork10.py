@@ -38,30 +38,19 @@ def add_points(P, Q):
     if x_1 == x_2 and y_1 != y_2:
         return (0, 0)
     if x_1 == x_2:
-        m = (3 * x_1 * x_1 + a) * inverse_mod(2 * y_1, p)
+        m = (3 * x_1 * x_1 + a) * modulo_inverse(2 * y_1, p)
     else:
-        m = (y_1 - y_2) * inverse_mod(x_1 - x_2, p)
+        m = (y_1 - y_2) * modulo_inverse(x_1 - x_2, p)
     x_3 = m * m - x_1 - x_2
     y_3 = y_1 + m * (x_3 - x_1)
     return (x_3 % p, -y_3 % p)
 
 
-def inverse_mod(k, p):
+def modulo_inverse(k, p):
     """
     Returns the inverse of k modulo p.
     """
-    if k >= 0:
-        s, pre_s = 0, 1
-        t, pre_t = 1, 0
-        r, pre_r = p, k
-        while r != 0:
-            quotient = pre_r // r
-            pre_r, r = r, pre_r - quotient * r
-            pre_s, s = s, pre_s - quotient * s
-            pre_t, t = t, pre_t - quotient * t
-        return pre_s % p
-    else:
-        return p - inverse_mod(-k, p)
+    return pow(k, -1, p)
 
 
 def truncate(r, bits):
@@ -75,7 +64,7 @@ def guess_next(backdoorkey, drgb_output, outbits, P, Q):
     """
     Get the next number from the given output of the DRBG
     """
-    inverse = inverse_mod(backdoorkey, n)
+    inverse = modulo_inverse(backdoorkey, n)
     for bits in range(0x10000):
         bits <<= outbits
         possible_x = bits | drgb_output[0]
